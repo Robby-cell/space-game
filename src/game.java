@@ -26,6 +26,11 @@ import java.util.Random;
 
 public class game extends JPanel implements KeyListener, Runnable {
 	
+	
+	boolean al_hold;
+	int ene_x_hold;
+	int ene_y_hold;
+	int ene_health_hold;
 	// game properties:
 	public int screenWidth;
 	public int screenHeight;
@@ -34,7 +39,7 @@ public class game extends JPanel implements KeyListener, Runnable {
 	
 	public boolean running = false;
 	
-	public Image bg;
+	public BufferedImage bg;
 	//BufferedImage bg = new BufferedImage(screenWidth, screenHeight, )
 	public int bgY = 0;
 	public final int BGDELAY = 12;
@@ -58,6 +63,7 @@ public class game extends JPanel implements KeyListener, Runnable {
 	public int projSpeedY = 12;
 	public int projPierce = 1;
 	public int movement = 0;
+	public int hits = 0;
 	
 	public int x;
 	public int y;
@@ -70,12 +76,12 @@ public class game extends JPanel implements KeyListener, Runnable {
 	public Random random = new Random();
 	
 	// enemies:
-	public List<Boolean> enemyAlive = Collections.synchronizedList(new ArrayList<Boolean>());
+	public List<Boolean> enemyAlive = new ArrayList<Boolean>();
 	
-	public List<Integer> enemyX = Collections.synchronizedList(new ArrayList<Integer>());
-	public List<Integer> enemyY = Collections.synchronizedList(new ArrayList<Integer>());
+	public List<Integer> enemyX = new ArrayList<Integer>();
+	public List<Integer> enemyY = new ArrayList<Integer>();
 	
-	public List<Integer> enemyHealth = Collections.synchronizedList(new ArrayList<Integer>());
+	public List<Integer> enemyHealth = new ArrayList<Integer>();
 	
 	public final int enemyW = 50;
 	public final int enemyH = 50;
@@ -161,8 +167,11 @@ public class game extends JPanel implements KeyListener, Runnable {
 			enemy3 = resize(enemy3, enemyW, enemyH);
 		} catch (IOException e3) {}
 		
-		Image temp = Toolkit.getDefaultToolkit().getImage("assets\\background.png");
-		bg = temp.getScaledInstance(screenWidth, screenHeight, Image.SCALE_DEFAULT);
+		try {
+			bg = ImageIO.read(
+					new File("assets\\background.png"));
+			bg = resize(bg, screenWidth, screenHeight);
+		} catch (IOException bge) {}
 		
 		
 		frame.add(this);
@@ -236,7 +245,8 @@ public class game extends JPanel implements KeyListener, Runnable {
 		todisp = String.format("Score: %d\nEnemies: %d", score, enemyAlive.size());
 		g.setFont(new Font("MV Boli", Font.PLAIN, 22));
 		FontMetrics metrics = getFontMetrics(g.getFont());
-		g.drawString(todisp, (int) (screenWidth - (1.2 * metrics.stringWidth(todisp))), 0 + g.getFont().getSize());
+		g.drawString(todisp, (int) (screenWidth - (1.4 * metrics.stringWidth(todisp))), 
+				(int) (1.2 * g.getFont().getSize()));
 		// end of misc.
 		
 		
@@ -365,20 +375,29 @@ public class game extends JPanel implements KeyListener, Runnable {
 	}
 		
 	void hit(int i) {
+		hits += 1;
 		pierce[i] -= 1;
+		if (pierce[i] <= 0) {
+			active[i] = false;
+		}
 	}
 		
-	public boolean intersect(int j) {
+	public void intersect(int j) {
 		for (int i = 0; i < enemyAlive.size(); i++) {
-			if (enemyX.get(i) > positionX[j] && enemyX.get(i) < positionX[j]
-					&& enemyY.get(i) > positionY[j] && enemyY.get(i) < positionY[j]
+			if (positionX[j] > enemyX.get(i) - SIZE
+					&& positionX[j] < enemyX.get(i) + enemyW + SIZE
+					&& positionY[j] > enemyY.get(i) - SIZE
+					&& positionY[j] < enemyY.get(i) + enemyH + SIZE
 					) {
-				enemyHealth.set(i,  enemyHealth.get(i) - 1);
-				hit(i);
-				if (pierce[i] <= 0) return false;
+				if (active[j]) {
+					if (enemyHealth.get(i) > 0) {
+						hit(j);
+					}
+					enemyHealth.set(i,  enemyHealth.get(i) - 1);
+					checkEnemyHealth(i);
+				}
 			}
 		}
-		return true;
 	}
 	
 	// end of projectile
@@ -405,25 +424,24 @@ public class game extends JPanel implements KeyListener, Runnable {
 	public void makeEnemy(int count) {
 		for (int i = 0; i < count ; i++) {
 			listUpdate(random.nextInt(0, screenWidth - enemyW),
-					random.nextInt(0, (int) (screenHeight * 0.6)),
+					10 * random.nextInt(0, (int) (screenHeight * 0.6)/10),
 					random.nextInt(1, 4),
 					true);
 		}
 	}
 	
-	protected void checkEnemyHealth() {
-		for(int i = 0; i < enemyHealth.size(); i++) {
-			if(enemyHealth.get(i) <= 0 && enemyAlive.get(i)) {
-				deadEnemy(i);
-			}
+	protected void checkEnemyHealth(int i) {
+		if(enemyHealth.get(i) <= 0) {
+			deadEnemy(i);
 		}
 	}
 	
 	protected void deadEnemy(int i) {
-		enemyAlive.remove(i);
-		enemyX.remove(i);
-		enemyY.remove(i);
-		enemyHealth.remove(i);
+		score += 1;
+		al_hold = enemyAlive.remove(i);
+		ene_x_hold = enemyX.remove(i);
+		ene_y_hold = enemyY.remove(i);
+		ene_health_hold = enemyHealth.remove(i);
 	}
 	
 	// end of utilites
