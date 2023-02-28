@@ -31,90 +31,90 @@ public class game extends JPanel implements KeyListener, Runnable {
 	int ene_y_hold;
 	int ene_health_hold;
 	// game properties:
-	public int screenWidth;
-	public int screenHeight;
+	protected int screenWidth;
+	protected int screenHeight;
 	
-	public final int DELAY = 20;
+	protected final int DELAY = 20;
 	
-	public boolean running = false;
+	protected boolean running = false;
 	
-	public BufferedImage bg;
+	protected BufferedImage bg;
 	//BufferedImage bg = new BufferedImage(screenWidth, screenHeight, )
-	public int bgY = 0;
-	public final int BGDELAY = 12;
+	protected int bgY = 0;
+	protected final int BGDELAY = 12;
 	// end of game properties
 	
 	// misc:
-	public int score = 0;
+	protected int score = 0;
 	String todisp;
 	// end of misc.
 	
 	// player properties:
-	public final int SPEED = 2;
+	protected final int SPEED = 2;
 	public final int MOVEDELAY = 50;
 	
-	public final double coolDownInMillis = 360;
-	public double lastTime = 0;
-	public double thisTime = 0;
+	protected final double coolDownInMillis = 360;
+	protected double lastTime = 0;
+	protected double thisTime = 0;
 	
-	public final int PROJ_SPEED = 1;
+	protected final int PROJ_SPEED = 1;
 	//int _speed, int _pierce, int posX, int posY
-	public int projSpeedY = 12;
-	public int projPierce = 1;
-	public int movement = 0;
-	public int hits = 0;
+	protected int projSpeedY = 12;
+	protected int projPierce = 1;
+	protected int movement = 0;
+	protected int hits = 0;
 	
-	public boolean shooting = false;
+	protected boolean shooting = false;
 	
-	public int x;
-	public int y;
+	protected int x;
+	protected int y;
 	
-	public final int PLAYER_WIDTH = 64;
-	public final int PLAYER_HEIGHT = 48;
+	protected final int PLAYER_WIDTH = 64;
+	protected final int PLAYER_HEIGHT = 48;
 	
 	// player properties end
 	
-	public Random random = new Random();
+	protected Random random = new Random();
 	
 	// enemies:
-	public List<Boolean> enemyAlive = new ArrayList<Boolean>();
+	protected List<Boolean> enemyAlive = new ArrayList<Boolean>();
 	
-	public List<Integer> enemyX = new ArrayList<Integer>();
-	public List<Integer> enemyY = new ArrayList<Integer>();
+	protected List<Integer> enemyX = new ArrayList<Integer>();
+	protected List<Integer> enemyY = new ArrayList<Integer>();
 	
-	public List<Integer> enemyHealth = new ArrayList<Integer>();
+	protected List<Integer> enemyHealth = new ArrayList<Integer>();
 	
-	public final int enemyW = 50;
-	public final int enemyH = 50;
+	protected final int enemyW = 50;
+	protected final int enemyH = 50;
 	
-	public BufferedImage enemy1;
-	public BufferedImage enemy2;
-	public BufferedImage enemy3;
+	protected BufferedImage enemy1;
+	protected BufferedImage enemy2;
+	protected BufferedImage enemy3;
 	// end of enemies
 	
 	// game
 	// JFrame frame;
-	public JFrame frame;
-	public JPanel panel;
+	protected JFrame frame;
+	protected JPanel panel;
 	
-	public Timer ready;
+	protected Timer ready;
 	// end of frame properties
 	
 	// projectile:
-	public int projIndex = 0;
+	protected int projIndex = 0;
 	
-	public final int SIZE = 10;
-	public int[] positionX = {0,0,0,0,0,0,0}; // array of positions for existing projectiles, 
+	protected final int SIZE = 10;
+	protected int[] positionX = {0,0,0,0,0,0,0}; // array of positions for existing projectiles, 
 	// so only a set amount of projectiles can be on screen at a given time
-	public int[] positionY = {0,0,0,0,0,0,0}; // ^
+	protected int[] positionY = {0,0,0,0,0,0,0}; // ^
 	
-	public boolean[] active = {false, false, false, false, false, false, false};
+	protected boolean[] active = {false, false, false, false, false, false, false};
 	
-	public int[] projSpeed = {0,0,0,0,0,0,0}; // ^
-	public int[] speedX = {0,0,0,0,0,0,0};
-	public int[] pierce = {0,0,0,0,0,0,0};
+	protected int[] projSpeed = {0,0,0,0,0,0,0}; // ^
+	protected int[] speedX = {0,0,0,0,0,0,0};
+	protected int[] pierce = {0,0,0,0,0,0,0};
 	
-	public int[] projDelay = {0,0,0,0,0,0,0};
+	protected int[] projDelay = {0,0,0,0,0,0,0};
 	
 	/*
 	Timer projTimerv = new Timer(DELAY,
@@ -123,7 +123,7 @@ public class game extends JPanel implements KeyListener, Runnable {
 	});
 	*/
 	
-	public Thread projMoveThread = new Thread(
+	protected Thread projMoveThread = new Thread(
 			() -> {
 				Timer projTimerv = new Timer(DELAY,
 						(e) -> {
@@ -239,7 +239,7 @@ public class game extends JPanel implements KeyListener, Runnable {
 		projMoveThread.start(); // added	// controls the movement of projectiles
 		
 	}
-	public static BufferedImage resize(BufferedImage img, int newW, int newH) { 
+	protected static BufferedImage resize(BufferedImage img, int newW, int newH) { 
 	    Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
 	    BufferedImage dimg = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
 
@@ -276,7 +276,7 @@ public class game extends JPanel implements KeyListener, Runnable {
 		
 		// projectile
 		g.setColor(Color.red);
-		for (int proj = 0; proj < active.length - 1; proj++) {
+		for (int proj = 0; proj < active.length; proj++) {
 			if (active[proj]) {
 				g.fillRect(positionX[proj], positionY[proj] ,SIZE, SIZE);
 			}
@@ -368,7 +368,7 @@ public class game extends JPanel implements KeyListener, Runnable {
 	
 	// projectile
 	
-	public void projectile(int _speed, int _pierce, int posX, int posY, int _speedX) throws IOException {
+	protected void projectile(int _speed, int _pierce, int posX, int posY, int _speedX) throws IOException {
 		
 		projIndex ++;
 		if (projIndex >= active.length) projIndex = 0;
@@ -385,7 +385,7 @@ public class game extends JPanel implements KeyListener, Runnable {
 		
 	}
 
-	void projMove() {
+	protected void projMove() {
 		
 		for (int i = 0; i < active.length; i++) {
 			positionX[i] += speedX[i];
@@ -395,7 +395,7 @@ public class game extends JPanel implements KeyListener, Runnable {
 		
 	}
 		
-	void hit(int i) {
+	protected void hit(int i) {
 		hits += 1;
 		pierce[i] -= 1;
 		if (pierce[i] <= 0) {
@@ -403,7 +403,7 @@ public class game extends JPanel implements KeyListener, Runnable {
 		}
 	}
 		
-	public void intersect(int j) {
+	protected void intersect(int j) {
 		for (int i = 0; i < enemyAlive.size(); i++) {
 			if (positionX[j] > enemyX.get(i) - SIZE
 					&& positionX[j] < enemyX.get(i) + enemyW
@@ -442,7 +442,7 @@ public class game extends JPanel implements KeyListener, Runnable {
 		
 	}
 	
-	public void makeEnemy(int count) {
+	protected void makeEnemy(int count) {
 		for (int i = 0; i < count ; i++) {
 			listUpdate(random.nextInt(0, screenWidth - enemyW),
 					10 * random.nextInt(0, (int) (screenHeight * 0.6)/10),
