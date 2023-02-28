@@ -19,7 +19,6 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
