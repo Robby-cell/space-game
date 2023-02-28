@@ -65,6 +65,8 @@ public class game extends JPanel implements KeyListener, Runnable {
 	public int movement = 0;
 	public int hits = 0;
 	
+	public boolean shooting = false;
+	
 	public int x;
 	public int y;
 	
@@ -184,6 +186,19 @@ public class game extends JPanel implements KeyListener, Runnable {
 		Timer moveTimer = new Timer(MOVEDELAY, 
 				e -> {
 					move();
+					if (shooting) {
+						try {
+							
+							thisTime = System.currentTimeMillis();
+						    if(thisTime - lastTime >= coolDownInMillis){
+						    	
+						    	projectile(projSpeedY, projPierce, x + (PLAYER_WIDTH - SIZE)/2, y - SIZE, (int) movement/2);
+						        lastTime = System.currentTimeMillis();
+						        
+						    }
+						} catch (IOException io) {
+						}
+					}
 		});
 		
 		Thread raster = new Thread(this);
@@ -202,18 +217,21 @@ public class game extends JPanel implements KeyListener, Runnable {
 				() -> {
 					Timer enemySpawn = new Timer(2000, 
 							e -> {
-								makeEnemy(random.nextInt(3));
+								makeEnemy(random.nextInt(1,3));
 							}
 					);
 					enemySpawn.start();
 				}
 		);
 		
+		// todo
+		/*
 		Thread enemyMover = new Thread(
 				() -> {
 					
 				}
 		);
+		*/
 		
 		raster.start();						// controls the graphics being updated
 		moveTimer.start();					// moves the player if their movement indicates they should be moving
@@ -239,15 +257,6 @@ public class game extends JPanel implements KeyListener, Runnable {
 		g.drawImage(bg, 0, bgY, null);
 		g.drawImage(bg, 0, bgY - screenHeight, null); // so we have a constant background thats always moving
 		// end of background
-		
-		
-		// misc:
-		todisp = String.format("Score: %d\nEnemies: %d", score, enemyAlive.size());
-		g.setFont(new Font("MV Boli", Font.PLAIN, 22));
-		FontMetrics metrics = getFontMetrics(g.getFont());
-		g.drawString(todisp, (int) (screenWidth - (1.4 * metrics.stringWidth(todisp))), 
-				(int) (1.2 * g.getFont().getSize()));
-		// end of misc.
 		
 		
 		// enemy:
@@ -282,6 +291,22 @@ public class game extends JPanel implements KeyListener, Runnable {
 		// end of player
 		
 		
+		// misc:
+		g.setColor(Color.white);
+		todisp = String.format("Score: %d", score);
+		g.setFont(new Font("MV Boli", Font.PLAIN, 22));
+		FontMetrics metrics = getFontMetrics(g.getFont());
+		g.drawString(todisp, (int) (screenWidth - (1.4 * metrics.stringWidth(todisp))), 
+				(int) (1.2 * g.getFont().getSize()));
+		
+		todisp = String.format("Enemies: %d", enemyAlive.size());
+		g.setFont(new Font("MV Boli", Font.PLAIN, 22));
+		metrics = getFontMetrics(g.getFont());
+		g.drawString(todisp, (int) (screenWidth - (1.4 * metrics.stringWidth(todisp))), 
+				(int) (2.2 * g.getFont().getSize()));
+		// end of misc.
+		
+		
 		// dispose of Graphics:
 		g.dispose();
 		
@@ -290,10 +315,12 @@ public class game extends JPanel implements KeyListener, Runnable {
 
 	private void move() {
 		if (x <= 0) {
-			movement = +4;
+			movement = 0;
+			x = 1;
 		}
 		else if (x >= screenWidth - PLAYER_WIDTH) {
-			movement = -4;
+			movement = 0;
+			x = screenWidth - (PLAYER_WIDTH + 1);
 		}
 		x += movement * 12;
 	}
@@ -311,17 +338,9 @@ public class game extends JPanel implements KeyListener, Runnable {
 			movement = +SPEED;
 		}
 		else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-			try {
-				
-				thisTime = System.currentTimeMillis();
-			    if(thisTime - lastTime >= coolDownInMillis){
-			    	
-			    	projectile(projSpeedY, projPierce, x + (PLAYER_WIDTH - SIZE)/2, y - SIZE, (int) movement/2);
-			        lastTime = System.currentTimeMillis();
-			        
-			    }
 			
-			} catch (IOException io) {}
+			shooting = true;
+			
 		}
 	}
 
@@ -329,6 +348,9 @@ public class game extends JPanel implements KeyListener, Runnable {
 	public void keyReleased(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_D) {
 			movement = 0;
+		}
+		else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+			shooting = false;
 		}
 	}
 	
@@ -385,9 +407,9 @@ public class game extends JPanel implements KeyListener, Runnable {
 	public void intersect(int j) {
 		for (int i = 0; i < enemyAlive.size(); i++) {
 			if (positionX[j] > enemyX.get(i) - SIZE
-					&& positionX[j] < enemyX.get(i) + enemyW + SIZE
+					&& positionX[j] < enemyX.get(i) + enemyW
 					&& positionY[j] > enemyY.get(i) - SIZE
-					&& positionY[j] < enemyY.get(i) + enemyH + SIZE
+					&& positionY[j] < enemyY.get(i) + enemyH
 					) {
 				if (active[j]) {
 					if (enemyHealth.get(i) > 0) {
