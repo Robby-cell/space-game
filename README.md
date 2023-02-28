@@ -1,4 +1,4 @@
 # space-game
 space invaders style game
 
-this game is not completed yet.
+Haven't yet added sound, mostly finished though; do need to test it on smaller devices.
