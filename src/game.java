@@ -27,9 +27,9 @@ public class game extends JPanel implements KeyListener, Runnable {
 	
 	
 	boolean al_hold;
-	int ene_x_hold;
-	int ene_y_hold;
-	int ene_health_hold;
+	int enemy_x_hold;
+	int enemy_y_hold;
+	int enemy_health_hold;
 	// game properties:
 	protected int screenWidth;
 	protected int screenHeight;
@@ -39,7 +39,6 @@ public class game extends JPanel implements KeyListener, Runnable {
 	protected boolean running = false;
 	
 	protected BufferedImage bg;
-	//BufferedImage bg = new BufferedImage(screenWidth, screenHeight, )
 	protected int bgY = 0;
 	protected final int BGDELAY = 12;
 	// end of game properties
@@ -58,7 +57,6 @@ public class game extends JPanel implements KeyListener, Runnable {
 	protected double thisTime = 0;
 	
 	protected final int PROJ_SPEED = 1;
-	//int _speed, int _pierce, int posX, int posY
 	protected int projSpeedY = 12;
 	protected int projPierce = 1;
 	protected int movement = 0;
@@ -95,7 +93,7 @@ public class game extends JPanel implements KeyListener, Runnable {
 	// game
 	// JFrame frame;
 	protected JFrame frame;
-	protected JPanel panel;
+	// protected JPanel panel;
 	
 	protected Timer ready;
 	// end of frame properties
@@ -116,13 +114,6 @@ public class game extends JPanel implements KeyListener, Runnable {
 	
 	protected int[] projDelay = {0,0,0,0,0,0,0};
 	
-	/*
-	Timer projTimerv = new Timer(DELAY,
-			(e) -> {
-				projMove();
-	});
-	*/
-	
 	protected Thread projMoveThread = new Thread(
 			() -> {
 				Timer projTimerv = new Timer(DELAY,
@@ -138,7 +129,7 @@ public class game extends JPanel implements KeyListener, Runnable {
 		
 		
 		frame = new JFrame();
-		panel = new JPanel();
+		// panel = new JPanel();
 		
 		makeFrameFullSize(frame);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -259,7 +250,6 @@ public class game extends JPanel implements KeyListener, Runnable {
 		
 		
 		// enemy:
-		//g.drawImage(enemy3, 50, 50, null);
 		for (int j = 0; j < enemyAlive.size(); j++) {
 			if(enemyHealth.get(j) == 3) {
 				g.drawImage(enemy3, enemyX.get(j), enemyY.get(j), null);
@@ -370,7 +360,7 @@ public class game extends JPanel implements KeyListener, Runnable {
 	
 	protected void projectile(int _speed, int _pierce, int posX, int posY, int _speedX) throws IOException {
 		
-		projIndex ++;
+		projIndex++;
 		if (projIndex >= active.length) projIndex = 0;
 		
 		this.positionX[projIndex] = posX;
